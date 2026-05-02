@@ -73,14 +73,18 @@ jobs:
       matrix:
         include:
           # Laravel 9 & 10 — Pest 2 (Pest 3 → collision 8 → needs Laravel 11+)
+          # pest <2.33: avoids brianium/paratest which requires PHP 8.2+
+          # phpunit <10.5.63: avoids explicit conflict declared in pest 2.0.1
           - php: "8.1"
             laravel: "9"
             testbench: "^7.0"
-            pest: "^2.0"
+            pest: "^2.0 <2.33"
+            phpunit: "^10.5.0 <10.5.63"
           - php: "8.1"
             laravel: "10"
             testbench: "^8.0"
-            pest: "^2.0"
+            pest: "^2.0 <2.33"
+            phpunit: "^10.5.0 <10.5.63"
           # Laravel 11 & 12 — Pest 3
           - php: "8.2"
             laravel: "11"
@@ -115,10 +119,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          PHPUNIT_WITH=""
+          [ -n "${{ matrix.phpunit }}" ] && PHPUNIT_WITH="--with phpunit/phpunit:${{ matrix.phpunit }}"
           composer update \
             --with "illuminate/support:^${{ matrix.laravel }}.0" \
             --with "orchestra/testbench:${{ matrix.testbench }}" \
             --with "pestphp/pest:${{ matrix.pest }}" \
+            ${PHPUNIT_WITH} \
             --prefer-dist --no-interaction --no-progress
 
       - name: Run Pest tests
