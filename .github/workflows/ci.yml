@@ -72,32 +72,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Laravel 10 — Pest 2, PHP 8.1
-          # testbench 7 (Laravel 9) requires phpunit ^9, pest 2 requires phpunit ^10 — irreconcilable
-          # pest <2.33: avoids brianium/paratest which requires PHP 8.2+
-          # phpunit <10.5.63: avoids explicit conflict with pest 2.0.1
-          - php: "8.1"
-            laravel: "10"
-            testbench: "^8.0"
-            pest: "^2.0 <2.33"
-            phpunit: "^10.5.0 <10.5.63"
-          # Laravel 11 & 12 — Pest 3
-          - php: "8.2"
-            laravel: "11"
-            testbench: "^9.0"
-            pest: "^3.0"
-          - php: "8.3"
-            laravel: "11"
-            testbench: "^9.0"
-            pest: "^3.0"
-          - php: "8.2"
-            laravel: "12"
-            testbench: "^10.0"
-            pest: "^3.0"
-          - php: "8.3"
-            laravel: "12"
-            testbench: "^10.0"
-            pest: "^3.0"
+          - { php: "8.1", laravel: "9",  testbench: "^7.0" }
+          - { php: "8.1", laravel: "10", testbench: "^8.0" }
+          - { php: "8.2", laravel: "11", testbench: "^9.0" }
+          - { php: "8.3", laravel: "11", testbench: "^9.0" }
+          - { php: "8.2", laravel: "12", testbench: "^10.0" }
+          - { php: "8.3", laravel: "12", testbench: "^10.0" }
 
     steps:
       - name: Checkout
@@ -110,19 +90,15 @@ jobs:
           extensions: mbstring, json
           coverage: none
 
-      - name: Remove dev tools not needed for test runs (PHP 8.2+ only)
+      - name: Remove dev tools not needed for test runs
         run: composer remove larastan/larastan laravel/pint --dev --no-update
 
       - name: Install dependencies
         run: |
-          PHPUNIT_ARGS=()
-          [ -n "${{ matrix.phpunit }}" ] && PHPUNIT_ARGS=(--with "phpunit/phpunit:${{ matrix.phpunit }}")
           composer update \
             --with "illuminate/support:^${{ matrix.laravel }}.0" \
             --with "orchestra/testbench:${{ matrix.testbench }}" \
-            --with "pestphp/pest:${{ matrix.pest }}" \
-            "${PHPUNIT_ARGS[@]}" \
             --prefer-dist --no-interaction --no-progress
 
-      - name: Run Pest tests
-        run: composer test
+      - name: Run tests
+        run: vendor/bin/phpunit

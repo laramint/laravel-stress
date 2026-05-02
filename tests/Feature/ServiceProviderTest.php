@@ -2,58 +2,65 @@
 
 declare(strict_types=1);
 
+namespace LaraMint\LaravelStress\Tests\Feature;
+
 use Illuminate\Foundation\Application;
 use LaraMint\LaravelStress\LaravelStressServiceProvider;
 use LaraMint\LaravelStress\StressTestRunner;
+use LaraMint\LaravelStress\Tests\TestCase;
 
-describe('LaravelStressServiceProvider – non-production', function () {
-    it('registers StressTestRunner in the container', function () {
-        expect($this->app->make(StressTestRunner::class))
-            ->toBeInstanceOf(StressTestRunner::class);
-    });
+class ServiceProviderTest extends TestCase
+{
+    public function test_registers_stress_test_runner_in_the_container(): void
+    {
+        $this->assertInstanceOf(StressTestRunner::class, $this->app->make(StressTestRunner::class));
+    }
 
-    it('registers StressTestRunner as a singleton', function () {
+    public function test_registers_stress_test_runner_as_a_singleton(): void
+    {
         $first = $this->app->make(StressTestRunner::class);
         $second = $this->app->make(StressTestRunner::class);
 
-        expect($first)->toBe($second);
-    });
+        $this->assertSame($first, $second);
+    }
 
-    it('is listed in the registered providers', function () {
+    public function test_is_listed_in_the_registered_providers(): void
+    {
         $loaded = array_keys($this->app->getLoadedProviders());
 
-        expect($loaded)->toContain(LaravelStressServiceProvider::class);
-    });
-});
+        $this->assertContains(LaravelStressServiceProvider::class, $loaded);
+    }
 
-describe('LaravelStressServiceProvider – production guard', function () {
-    it('does not bind StressTestRunner when APP_ENV is production', function () {
+    public function test_does_not_bind_stress_test_runner_when_env_is_production(): void
+    {
         $app = new Application;
         $app['env'] = 'production';
 
         $provider = new LaravelStressServiceProvider($app);
         $provider->register();
 
-        expect($app->bound(StressTestRunner::class))->toBeFalse();
-    });
+        $this->assertFalse($app->bound(StressTestRunner::class));
+    }
 
-    it('does bind StressTestRunner when APP_ENV is local', function () {
+    public function test_does_bind_stress_test_runner_when_env_is_local(): void
+    {
         $app = new Application;
         $app['env'] = 'local';
 
         $provider = new LaravelStressServiceProvider($app);
         $provider->register();
 
-        expect($app->bound(StressTestRunner::class))->toBeTrue();
-    });
+        $this->assertTrue($app->bound(StressTestRunner::class));
+    }
 
-    it('does bind StressTestRunner when APP_ENV is testing', function () {
+    public function test_does_bind_stress_test_runner_when_env_is_testing(): void
+    {
         $app = new Application;
         $app['env'] = 'testing';
 
         $provider = new LaravelStressServiceProvider($app);
         $provider->register();
 
-        expect($app->bound(StressTestRunner::class))->toBeTrue();
-    });
-});
+        $this->assertTrue($app->bound(StressTestRunner::class));
+    }
+}
