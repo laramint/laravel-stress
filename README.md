@@ -7,7 +7,7 @@ Spawns Guzzle request pools in a **background subprocess** so they never deadloc
 ## Installation
 
 ```bash
-composer require --dev laramint/laravel-stress
+composer require laramint/laravel-stress
 ```
 
 ## Usage
