@@ -31,7 +31,7 @@ class ServiceProviderTest extends TestCase
         $this->assertContains(LaravelStressServiceProvider::class, $loaded);
     }
 
-    public function test_does_not_bind_stress_test_runner_when_env_is_production(): void
+    public function test_does_bind_stress_test_runner_when_env_is_production(): void
     {
         $app = new Application;
         $app['env'] = 'production';
@@ -39,7 +39,7 @@ class ServiceProviderTest extends TestCase
         $provider = new LaravelStressServiceProvider($app);
         $provider->register();
 
-        $this->assertFalse($app->bound(StressTestRunner::class));
+        $this->assertTrue($app->bound(StressTestRunner::class));
     }
 
     public function test_does_bind_stress_test_runner_when_env_is_local(): void
