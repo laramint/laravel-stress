@@ -114,18 +114,18 @@ jobs:
           extensions: mbstring, json
           coverage: none
 
-      - name: Remove larastan (requires Laravel 10+ — not needed for test runs)
-        run: composer remove larastan/larastan --dev --no-update
+      - name: Remove dev tools not needed for test runs (PHP 8.2+ only)
+        run: composer remove larastan/larastan laravel/pint --dev --no-update
 
       - name: Install dependencies
         run: |
-          PHPUNIT_WITH=""
-          [ -n "${{ matrix.phpunit }}" ] && PHPUNIT_WITH="--with phpunit/phpunit:${{ matrix.phpunit }}"
+          PHPUNIT_ARGS=()
+          [ -n "${{ matrix.phpunit }}" ] && PHPUNIT_ARGS=(--with "phpunit/phpunit:${{ matrix.phpunit }}")
           composer update \
             --with "illuminate/support:^${{ matrix.laravel }}.0" \
             --with "orchestra/testbench:${{ matrix.testbench }}" \
             --with "pestphp/pest:${{ matrix.pest }}" \
-            ${PHPUNIT_WITH} \
+            "${PHPUNIT_ARGS[@]}" \
             --prefer-dist --no-interaction --no-progress
 
       - name: Run Pest tests
