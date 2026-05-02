@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Pre-commit hook: runs Pint, PHPStan, and Pest before every commit.
+# Install automatically via: composer install  (runs the "prepare" script)
+
+set -euo pipefail
+
+BOLD='\033[1m'
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+ROOT="$(git rev-parse --show-toplevel)"
+PHP_BIN="${PHP_BINARY:-php}"
+VENDOR="$ROOT/vendor"
+
+# ── Guard: vendor must exist ──────────────────────────────────────────────────
+if [[ ! -d "$VENDOR" ]]; then
+  echo -e "${YELLOW}[pre-commit] vendor/ not found — run composer install first.${RESET}"
+  exit 1
+fi
+
+PINT="$VENDOR/bin/pint"
+PHPSTAN="$VENDOR/bin/phpstan"
+PEST="$VENDOR/bin/pest"
+
+pass() { echo -e "  ${GREEN}✔${RESET}  $1"; }
+fail() { echo -e "  ${RED}✘${RESET}  $1"; }
+
+echo ""
+echo -e "${BOLD}Running pre-commit checks…${RESET}"
+echo ""
+
+FAILED=0
+
+# ── 1. Laravel Pint ───────────────────────────────────────────────────────────
+echo -e "${BOLD}[1/3] Pint — code style${RESET}"
+if "$PHP_BIN" "$PINT" --test --quiet; then
+  pass "Code style OK"
+else
+  fail "Pint found style violations. Run: composer pint"
+  FAILED=1
+fi
+
+echo ""
+
+# ── 2. PHPStan ────────────────────────────────────────────────────────────────
+echo -e "${BOLD}[2/3] PHPStan — static analysis${RESET}"
+if "$PHP_BIN" "$PHPSTAN" analyse --memory-limit=512M --no-progress 2>&1; then
+  pass "No static analysis errors"
+else
+  fail "PHPStan found errors. Run: composer stan"
+  FAILED=1
+fi
+
+echo ""
+
+# ── 3. Pest ───────────────────────────────────────────────────────────────────
+echo -e "${BOLD}[3/3] Pest — unit & feature tests${RESET}"
+if "$PHP_BIN" "$PEST" --colors=always; then
+  pass "All tests passed"
+else
+  fail "Tests failed. Run: composer test"
+  FAILED=1
+fi
+
+echo ""
+
+if [[ $FAILED -ne 0 ]]; then
+  echo -e "${RED}${BOLD}Commit blocked.${RESET} Fix the issues above and try again."
+  echo -e "To bypass in an emergency: ${YELLOW}git commit --no-verify${RESET}"
+  echo ""
+  exit 1
+fi
+
+echo -e "${GREEN}${BOLD}All checks passed — committing.${RESET}"
+echo ""
+exit 0

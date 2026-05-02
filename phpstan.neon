@@ -1,0 +1,14 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+
+parameters:
+    paths:
+        - src
+
+    level: 6
+
+    excludePaths:
+        - src/stress-runner.php
+
+    ignoreErrors: []

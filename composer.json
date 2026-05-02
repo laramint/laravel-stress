@@ -1,0 +1,49 @@
+{
+    "name": "laramint/laravel-stress",
+    "description": "Fire-and-forget HTTP stress testing runner for Laravel development environments",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "stress-test", "load-test", "http", "development"],
+    "require": {
+        "php": ">=8.1",
+        "guzzlehttp/guzzle": "^7.0",
+        "illuminate/support": "^9.0|^10.0|^11.0|^12.0|^13.0"
+    },
+    "require-dev": {
+        "pestphp/pest": "^3.0",
+        "orchestra/testbench": "^7.0|^8.0|^9.0|^10.0|^11.0",
+        "laravel/pint": "^1.0",
+        "larastan/larastan": "^2.0",
+        "phpstan/phpstan-phpunit": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "LaraMint\\LaravelStress\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaraMint\\LaravelStress\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "LaraMint\\LaravelStress\\LaravelStressServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "prepare": "git config core.hooksPath .git-hooks || true",
+        "test": "pest",
+        "test:coverage": "pest --coverage",
+        "pint": "pint",
+        "pint:test": "pint --test",
+        "stan": "phpstan analyse --memory-limit=512M"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}
