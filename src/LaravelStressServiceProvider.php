@@ -10,6 +10,17 @@ class LaravelStressServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        if ($this->app->isProduction()) {
+            return;
+        }
+
         $this->app->singleton(StressTestRunner::class);
+    }
+
+    public function boot(): void
+    {
+        if ($this->app->isProduction()) {
+            return;
+        }
     }
 }
