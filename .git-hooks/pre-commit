@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Pre-commit hook: runs Pint, PHPStan, and Pest before every commit.
+# Pre-commit hook: runs Pint, PHPStan, and PHPUnit before every commit.
 # Install automatically via: composer install  (runs the "prepare" script)
 
 set -euo pipefail
@@ -22,7 +22,7 @@ fi
 
 PINT="$VENDOR/bin/pint"
 PHPSTAN="$VENDOR/bin/phpstan"
-PEST="$VENDOR/bin/pest"
+PHPUNIT="$VENDOR/bin/phpunit"
 
 pass() { echo -e "  ${GREEN}✔${RESET}  $1"; }
 fail() { echo -e "  ${RED}✘${RESET}  $1"; }
@@ -55,9 +55,9 @@ fi
 
 echo ""
 
-# ── 3. Pest ───────────────────────────────────────────────────────────────────
-echo -e "${BOLD}[3/3] Pest — unit & feature tests${RESET}"
-if "$PHP_BIN" "$PEST" --colors=always; then
+# ── 3. PHPUnit ────────────────────────────────────────────────────────────────
+echo -e "${BOLD}[3/3] PHPUnit — unit & feature tests${RESET}"
+if "$PHP_BIN" "$PHPUNIT" --colors=always; then
   pass "All tests passed"
 else
   fail "Tests failed. Run: composer test"
