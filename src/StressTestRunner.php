@@ -125,6 +125,14 @@ class StressTestRunner
 
     private function backgroundAvailable(): bool
     {
+        // Under PHP-FPM (Herd, Valet, Nginx) the server runs multiple workers,
+        // so the synchronous Guzzle pool won't deadlock — other workers handle
+        // the stress requests.  PHP_BINARY in FPM context is the php-fpm binary
+        // which cannot run standalone scripts, so skip background entirely.
+        if (PHP_SAPI === 'fpm-fcgi') {
+            return false;
+        }
+
         if (! file_exists(base_path('vendor/autoload.php'))) {
             return false;
         }
